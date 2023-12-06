@@ -1,172 +1,122 @@
-import React, {Component} from 'react';
-import { StatusBar, ExpoStatusBar } from 'expo-status-bar';
-import { NavigationContainer} from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import React, { Component, useState, useEffect } from 'react';
+import { StatusBar } from 'expo-status-bar';
+
+import * as ImagePicker from 'expo-image-picker';
 
 import { 
-  Alert, Button, Platform, StyleSheet,
-  Text, View, TouchableHighlight, TouchableOpacity,
-  TouchableNativeFeedback, TouchableWithoutFeedback 
+  Alert, Platform, SafeAreaView, StyleSheet, Text, View, 
+  Button, Pressable, TouchableHighlight, TouchableOpacity, 
+  TouchableNativeFeedback, TouchableWithoutFeedback
 } from 'react-native';
 
+import * as TaskManager from 'expo-task-manager';
+import * as Location from 'expo-location';
+import { NavigationContainer} from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import StyledButton from './components/Button';
+import Marker from './components/Marker';
+import Waiter from './components/Waiter';
 
-/*
-
-export class ButtonBasics extends Component {
-  _onPressButton() {
-    Alert.alert('You tapped the button!');
-  }
-
-  render() {
-    return (
-      <View style={styles.container}>
-        <View style={styles.buttonContainer}>
-          <Button onPress={this._onPressButton} title="Press Me" />
-        </View>
-        <View style={stylesButtonBasic.buttonContainer}>
-          <Button
-            onPress={this._onPressButton}
-            title="Press Me"
-            color="#841584"
-          />
-        </View>
-        <View style={stylesButtonBasic.alternativeLayoutButtonContainer}>
-          <Button onPress={this._onPressButton} title="This looks great!" />
-          <Button onPress={this._onPressButton} title="OK!" color="#841584" />
-        </View>
-      </View>
-    );
-  }
+const SetLocationTask = (name) => {
+  const taskExecutorObj =  { data: { locations }, error }; 
+  TaskManager.defineTask(name, (arg = taskExecutorObj) => {
+    if (arg.error) {
+      // check `error.message` for more details.
+      console.log('Error', arg.error.message);
+    }
+    console.log('locations received', arg.data.locations);
+    return arg;
+  })
 }
 
-const stylesButtonBasic = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-  },
-  buttonContainer: {
-    margin: 20,
-  },
-  alternativeLayoutButtonContainer: {
-    margin: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-});
-
-
-export class Touchables extends Component {
-  _onPressButton() {
-    Alert.alert('You tapped the button!');
+const GetLocation = async (setError, setLocation) => {
+      
+  let { status } = await Location.requestForegroundPermissionsAsync();
+  if (status !== 'granted') {
+    setError('Permission to access location was denied');
+    return;
   }
 
-  _onLongPressButton() {
-    Alert.alert('You long-pressed the button!');
-  }
-
-  render() {
-    return (
-      <View style={stylesButtonTouchable.container}>
-        <TouchableHighlight onPress={this._onPressButton} underlayColor="white">
-          <View style={stylesButtonTouchable.button}>
-            <Text style={stylesButtonTouchable.buttonText}>TouchableHighlight</Text>
-          </View>
-        </TouchableHighlight>
-        <TouchableOpacity onPress={this._onPressButton}>
-          <View style={stylesButtonTouchable.button}>
-            <Text style={stylesButtonTouchable.buttonText}>TouchableOpacity</Text>
-          </View>
-        </TouchableOpacity>
-        <TouchableNativeFeedback
-          onPress={this._onPressButton}
-          background={
-            Platform.OS === 'android'
-              ? TouchableNativeFeedback.SelectableBackground()
-              : undefined
-          }>
-          <View style={stylesButtonTouchable.button}>
-            <Text style={stylesButtonTouchable.buttonText}>
-              TouchableNativeFeedback{' '}
-              {Platform.OS !== 'android' ? Platform.OS : ''}
-            </Text>
-          </View>
-        </TouchableNativeFeedback>
-        <TouchableWithoutFeedback onPress={this._onPressButton}>
-          <View style={stylesButtonTouchable.button}>
-            <Text style={stylesButtonTouchable.buttonText}>TouchableWithoutFeedback</Text>
-          </View>
-        </TouchableWithoutFeedback>
-        <TouchableHighlight
-          onPress={this._onPressButton}
-          onLongPress={this._onLongPressButton}
-          underlayColor="white">
-          <View style={stylesButtonTouchable.button}>
-            <Text style={stylesButtonTouchable.buttonText}>Touchable with Long Press</Text>
-          </View>
-        </TouchableHighlight>
-      </View>
-    );
-  }
+  let location = await Location.getCurrentPositionAsync({});
+  setLocation(location);
+  return;
 }
 
-const stylesButtonTouchable = StyleSheet.create({
-  container: {
-    paddingTop: 60,
-    alignItems: 'center',
-  },
-  button: {
-    marginBottom: 30,
-    width: 260,
-    alignItems: 'center',
-    backgroundColor: '#2196F3',
-  },
-  buttonText: {
-    textAlign: 'center',
-    padding: 20,
-    color: 'white',
-  },
-});
-*/
-
-const ScreenTemplate = (props) => {
-
+ function StartScreen({ navigation, route }) {
   
-  /*
+  const onPress = (e) => navigation.navigate("Home")
+  
   return (
-    <View style={styles.container}>
-        <StatusBar />
-      {{
-        (props) =>  <HomeBase {...props}.component 
-      }}
-    </View>
-  )*/
-}
 
-
-function HomeBase({ navigation, route }) {
-  return (
-    <View style={styles.container}>
-      <Text>Hom Scren</Text>
-      <View>
-        <TouchableHighlight underlayColor="white">
-          <Text>Start</Text>
-        </TouchableHighlight>
-      </View>
-    
-    </View>
+    <SafeAreaView style={styles.container}>
+      <StyledButton theme="primary" label="Start" onPress={onPress}/>
+      <StyledButton label="Settings"  onPress={onPress}/>
+    </SafeAreaView>
   );
 }
 
-const HomeScreen = (props) => <ScreenTemplate {...props}  component={<HomeBase {...props} /> } />
+function HomeScreen({ navigation, route }) {
 
+  const [location, setLocation] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null);
+
+  useEffect(() => {
+    GetLocation(setErrorMsg, setLocation);
+  }, []);
+
+  let text;
+  let node = <Waiter/>;
+  if (errorMsg) {
+    text = errorMsg;
+    node = Alert.alert(errorMsg);  
+  } 
+
+  else {
+    text = JSON.stringify(location);
+    node = <Marker />
+  }
+
+
+  return (
+    <SafeAreaView style={styles.container}>
+        <Text style={styles.paragraph}>{text}</Text>
+        {node}
+    </SafeAreaView>
+  );
+}
+
+
+
+function SettingsScreen({ navigation, route }) {
+  return (
+    <SafeAreaView style={styles.container}>
+      <StyledButton theme="primary" label="Start" />
+      <StyledButton label="Settings"/>
+    </SafeAreaView>
+  );
+}
 
 const RootStack = createNativeStackNavigator() ;
 
+const ScreenLogoTitle = ({children}) => {
+  return (
+    <View>
+      <StatusBar style="auto" /> 
+      <Text>{children}</Text>
+    </View>
+  )
+ }
+
 export default function App() {
+  
+  const [selectedImage, setSelectedImage] = useState(null);
+  const getImage = (s) => PickImageAsync (s) ;  
   return (
     <NavigationContainer>
-      <RootStack.Navigator id={1} screenOptions={{ headerTitle: (props) =>  <StatusBar />  }} >
-        <RootStack.Screen name="home" component={HomeBase} options={{title:'welcome', contentStyle: styles }} />
+      <RootStack.Navigator id={1} screenOptions={{ headerTitle: (props) =>  <ScreenLogoTitle {...props} /> }} >
+        <RootStack.Screen name="Start" component={StartScreen} options={{ title:'welcome', contentStyle: styles }} />
+        <RootStack.Screen name="Home" component={HomeScreen} options={{title:'Home', contentStyle: styles }} />
+        <RootStack.Screen name="Settings" component={SettingsScreen} options={{title:'Settings', contentStyle: styles, gestureEnabled: false }} />
       </RootStack.Navigator>
     </NavigationContainer>
   );
@@ -174,10 +124,9 @@ export default function App() {
 
 const styles = StyleSheet.create({
   container: {
-position: 'relative',
     flex: 1,
-    backgroundColor: '#0000',
+    backgroundColor: '#25292e',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
 });
