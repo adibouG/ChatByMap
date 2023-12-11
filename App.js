@@ -20,9 +20,7 @@ import StyledButton from './components/Button';
 import Marker from './components/Marker';
 import Waiter from './components/Waiter';
 
-import DbStore from './components/DBStore';
-
-import * as  d  from './components/TmpData/tmpData.json' ;
+import db from './components/DBStore';
 
 
 import { Chatty } from 'react-native-chatty';
@@ -83,7 +81,7 @@ function HomeScreen({ navigation, route }) {
       })
       .catch(err => setErrorMsg(err))
   }; 
-  false
+  
   const MessageView = () => {
     return (
       <View style={msgViewStyles.msgViewStyles}>
@@ -93,16 +91,24 @@ function HomeScreen({ navigation, route }) {
   }
 
   const ChatMsgView = () => {
-    const mess1 = ;
+    const mess1 = {
+      id: 1,
+      text: 'Hello',
+      me: true,
+      createdAt: new Date(),
+      user: {
+        id: 1,
+        username: 'John Doe',
+        avatar: { uri: 'https://i.pravatar.cc/300' },
+      },
+    };
   
-
     const [messages, setMessages] = useState([mess1]);
     const text = useRef()
 
     const onPressSend = (data) => {
       // Implement
-      users : IUser []
-
+  
       socket.send(data)
     }
     return (
@@ -125,7 +131,10 @@ function HomeScreen({ navigation, route }) {
         />
       </View>
     )
-  },
+  }
+  
+  
+  const MapView = () => {
     return (
       <View>
       { 
@@ -149,8 +158,7 @@ function HomeScreen({ navigation, route }) {
       <ChatMsgView />
     </SafeAreaView>
   );
-  }
-
+}
 
 const msgViewStyles = StyleSheet.create({
   container: {
