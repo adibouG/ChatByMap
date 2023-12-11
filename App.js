@@ -1,21 +1,31 @@
 import React, { Component, useState, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 
-import * as ImagePicker from 'expo-image-picker';
 
+import { TextInput } from 'react-native';
 import { 
   Alert, Platform, SafeAreaView, StyleSheet, Text, View, 
   Button, Pressable, TouchableHighlight, TouchableOpacity, 
   TouchableNativeFeedback, TouchableWithoutFeedback
 } from 'react-native';
 
-import * as TaskManager from 'expo-task-manager';
-import * as Location from 'expo-location';
 import { NavigationContainer} from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+import * as TaskManager from 'expo-task-manager';
+import * as Location from 'expo-location';
+import * as ImagePicker from 'expo-image-picker';
+
 import StyledButton from './components/Button';
 import Marker from './components/Marker';
 import Waiter from './components/Waiter';
+
+import DbStore from './components/DBStore';
+
+import * as  d  from './components/TmpData/tmpData.json' ;
+
+
+import { Chatty } from 'react-native-chatty';
 
 const SetLocationTask = (name) => {
   const taskExecutorObj =  { data: { locations }, error }; 
@@ -29,20 +39,18 @@ const SetLocationTask = (name) => {
   })
 }
 
-const GetLocation = async (setError, setLocation) => {
+const GetLocation = async () => {
       
   let { status } = await Location.requestForegroundPermissionsAsync();
   if (status !== 'granted') {
-    setError('Permission to access location was denied');
-    return;
+    throw status;
   }
 
   let location = await Location.getCurrentPositionAsync({});
-  setLocation(location);
-  return;
+  return location;
 }
 
- function StartScreen({ navigation, route }) {
+function StartScreen({ navigation, route }) {
   
   const onPress = (e) => navigation.navigate("Home")
   
@@ -61,30 +69,103 @@ function HomeScreen({ navigation, route }) {
   const [errorMsg, setErrorMsg] = useState(null);
 
   useEffect(() => {
-    GetLocation(setErrorMsg, setLocation);
+    if (!location && !errorMsg) SetLocation();
   }, []);
 
-  let text;
-  let node = <Waiter/>;
-  if (errorMsg) {
-    text = errorMsg;
-    node = Alert.alert(errorMsg);  
-  } 
+  const SetLocation = () => {
+    return GetLocation()
+      .then(loc  => {
+        if ((loc && !location) 
+          || (loc && location && JSON.stringify(loc) !== JSON.stringify(location)))  
+        {
+            setLocation (loc) 
+        }
+      })
+      .catch(err => setErrorMsg(err))
+  }; 
+  false
+  const MessageView = () => {
+    return (
+      <View style={msgViewStyles.msgViewStyles}>
+       
+      </View>
+    )
+  }
 
-  else {
-    text = JSON.stringify(location);
-    node = <Marker />
+  const ChatMsgView = () => {
+    const mess1 = ;
+  
+
+    const [messages, setMessages] = useState([mess1]);
+    const text = useRef()
+
+    const onPressSend = (data) => {
+      // Implement
+      users : IUser []
+
+      socket.send(data)
+    }
+    return (
+      <View>
+        <Chatty
+          messages={messages}
+          headerProps={
+            {
+              id: 0,
+              username: "Muhammed Kaplan",
+              avatar: { uri: "https://i.pravatar.cc/320" },
+            }
+          }
+          footerProps={
+            { // To prevent any unnecessary re-rendering, we're using ref instead of states.
+              onChangeText: (_text) => text.current = _text,
+              onPressSend
+            }
+          }
+        />
+      </View>
+    )
+  },
+    return (
+      <View>
+      { 
+        errorMsg 
+          && Alert.alert(errorMsg)
+      }
+      <Text style={msgViewStyles.paragraph}>{`Location: ${location ? JSON.stringify(location) : errorMsg}`}</Text> 
+      <View>
+        {
+          location ? <Marker /> : <Waiter />
+        }
+      </View>
+    </View>
+    )
   }
 
 
   return (
-    <SafeAreaView style={styles.container}>
-        <Text style={styles.paragraph}>{text}</Text>
-        {node}
+    <SafeAreaView style={msgViewStyles.container}>
+      <MapView />
+      <ChatMsgView />
     </SafeAreaView>
   );
-}
+  }
 
+
+const msgViewStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'white',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  paragraph: {
+    flex: 1,
+    color: 'grey',
+    alignItems: 'center',
+    justifyContent: 'center'
+  } 
+});
 
 
 function SettingsScreen({ navigation, route }) {
@@ -110,7 +191,7 @@ const ScreenLogoTitle = ({children}) => {
 export default function App() {
   
   const [selectedImage, setSelectedImage] = useState(null);
-  const getImage = (s) => PickImageAsync (s) ;  
+  const getImage = (s) => ImagePicker.PickImageAsync (s) ;  
   return (
     <NavigationContainer>
       <RootStack.Navigator id={1} screenOptions={{ headerTitle: (props) =>  <ScreenLogoTitle {...props} /> }} >

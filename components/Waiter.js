@@ -1,37 +1,39 @@
 
 import React, {useRef, useEffect} from 'react'
-import { View, StyleSheet, Animated } from 'react-native'
+import { Platform,View, StyleSheet, Animated, Easing } from 'react-native'
 
 export default function Waiter({rounded = false}) {
-    
-    useEffect( () => {
-
-        Rotating();
-    } );
-    
-    
-    let anim = useRef(new Animated.Value(RotateX(0))).current;
-
         
-    const fadeIn = () => {
-        // Will change fadeAnim value to 1 in 5 seconds
-        Animated.timing(anim, {
-          toValue: RotateX(90),
-          duration: 5000,
-          useNativeDrivexr: true,
-        })
-    }
+  const useNative = Platform.OS === "web"; //for Web the useNativeDriver fail on loop animations
 
-    const Rotating = () => {
-        // Will change fadeAnim value to 1 in 5 seconds
-        Animated.loop (fadeIn).start();
-      };
-    
+  const anim = useRef(new Animated.Value(0)).current;
+
+ 
+    useEffect(() => {
+      Animated.loop(
+        Animated.timing(
+          anim, {
+            toValue: 360,
+            easing: Easing.inOut(Easing.linear),
+            duration: 5000,
+            useNativeDriver: useNative,
+            isInteraction: false
+        }), {iterations: -1}
+      ).start();
+      }, [anim]);
   
+    const spin = anim.interpolate({
+      inputRange: [0, 360],
+      outputRange: ['0deg', '360deg'],
+    });
+
+
      return (
-         <Animated.View style={[styles.container, { transform: anim } ]} > 
-              <Animated.View style={[ styles.squared, { transform: (anim) } ]} />
-         </Animated.View>
+         <View style={styles.container} > 
+              <Animated.View style={[ styles.squared ,   {
+            transform: [{ rotateZ: spin }, { rotateX: spin }]   
+          }]} />
+         </View>
      )
  }
 
@@ -47,8 +49,6 @@ const styles = StyleSheet.create({
     height: 50,
     borderWidth: 5,
     borderColor: 'yellow',
-    borderRadius: 50,
-
   },
   ronded: {
     width: 50,
