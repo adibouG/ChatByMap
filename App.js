@@ -52,14 +52,17 @@ function HomeScreen({ navigation, route }) {
   return (
   <SafeAreaView style={msgViewStyles.container}>
     <Map />
-    {/* <ChatMsgView /> */}
+    {/*
+     <ChatMsgView />
+    */}
+   
   </SafeAreaView>
  );
   }
 
 const msgViewStyles = StyleSheet.create({
-container: {
-  flex: 1,
+  container: {
+    flex: 1,
   backgroundColor: 'white',
   alignItems: 'center',
   justifyContent: 'center'
@@ -97,7 +100,7 @@ const ChatMsgView = () => {
   }
   return (
     <View>
-     {/*<Chatty
+     <Chatty
         messages={messages}
         headerProps={
           {
@@ -113,7 +116,7 @@ const ChatMsgView = () => {
             onPressSend
           }
         }
-      />*/}
+      />
     </View>
   )
 }

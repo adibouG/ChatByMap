@@ -1,32 +1,39 @@
 import React, {useState, useEffect} from 'react';
-import MapView from 'react-native-maps';
+import MapView, {Marker} from 'react-native-maps';
 import { StyleSheet, View, Text } from 'react-native';
 
 import * as Location from 'expo-location';
 import * as Device from 'expo-device';
 import * as TaskManager from 'expo-task-manager';
 
-import Marker from './Marker';
+//import Marker from './Marker';
 import Waiter from './Waiter';
 
 
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
-    height: 400,
-    width: 400,
-    justifyContent: 'flex-end',
+    flex: 1,
+    justifyContent: 'space-between',
+    alignItems: 'stretch',
+  },
+  mapContainer: {
+    ...StyleSheet.absoluteFillObject,
+    flex:1,
     alignItems: 'center',
   },
   map: {
     ...StyleSheet.absoluteFillObject,
   },
-  paragraph:{ 
-  flex: 1,
-  color: 'grey',
-  alignItems: 'center',
-  justifyContent: 'center'
- }
+  paragraphContainer:{ 
+    position: 'absolute',
+    height: '20%',
+    width: '100%',
+    bottom:20,
+    color: 'grey',
+    alignItems: 'center',
+    justifyContent: 'flex-end'
+  }
 });
 
 
@@ -74,7 +81,10 @@ const styles = StyleSheet.create({
     {
       setErrorMsg(err); 
     }
-  } 
+  }
+  
+  /* helpers function to calculate the area
+   displayed by the Map according to areaKm state*/ 
   function degreesToRadians(angle) {
     return angle * (Math.PI / 180);
   }
@@ -82,19 +92,35 @@ const styles = StyleSheet.create({
     return km * 0.0089831 / Math.cos(degreesToRadians(atLatitude));
   }
   
+  const onRegionChange = () => setLocationState();
+
   return (
     <View style={styles.container}>
-      <MapView
-          style={styles.map}
-          region={{
-          latitude: location?.coords?.latitude || 37.78825,
-          longitude: location?.coords?.longitude || -122.4324,
-          latitudeDelta: 0.001,
-          longitudeDelta: kMToLongitudes(areaKm, 51.588491),
-        }}
-      >
-      </MapView>
-      <View style={styles.paragraph}>
+      <View style={styles.mapContainer}>
+      {
+        location ?
+          <MapView
+            style={styles.map}
+            region={{
+              latitude: location?.coords?.latitude || 37.78825,
+              longitude: location?.coords?.longitude || -122.4324,
+              latitudeDelta: 0.001,
+              longitudeDelta: kMToLongitudes(areaKm, location?.coords?.latitude),
+            }}
+           onRegionChange={onRegionChange}
+          >
+            <Marker 
+              coordinate={{
+                latitude: location?.coords?.latitude,
+                longitude: location?.coords?.longitude
+              }} 
+            />
+          </MapView>
+        : 
+          <Waiter />
+      }
+      </View>
+      <View style={styles.paragraphContainer}>
         <Text>
         {
           `Location: 
@@ -107,67 +133,4 @@ const styles = StyleSheet.create({
     </View>
  );
       }
-/*const Map = () => {
-   
-  return (
-    <View style={msgViewStyles.mapContainer}>
-      <MapView style={msgViewStyles.map}  
-       initialRegion={{
-        latitude: 37.78825,
-        longitude: -122.4324,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-      }}/>
-    {/* <View style={msgViewStyles.container}>
-      { 
-        error 
-        && Alert.alert(error)
-      }
-      <View style={msgViewStyles.paragraph}>
-        <Text>
-        {
-          `Location: 
-          ${location ? 
-            JSON.stringify(location) 
-            : error}`
-        }
-        </Text> 
-      </View> 
-      <View style={msgViewStyles.mapContainer}>
-      <MapView style={msgViewStyles.map} />
-      {
-        location ? <Marker /> : <Waiter />
-      }
-      </View>
-    </View> 
-  )
-}
 
-
-
-
-const msgViewStyles = StyleSheet.create({
-container: {
-  flex: 1,
-  backgroundColor: 'white',
-  alignItems: 'center',
-  justifyContent: 'center'
-},
-paragraph: {
-  flex: 1,
-  color: 'grey',
-  alignItems: 'center',
-  justifyContent: 'center'
-}, 
-mapContainer: {
-  flex: 1,
-},
-   map: {
-  width: '100%',
-  height: '100%',
-},
-});
-
-
-*/
-//export default Map;
