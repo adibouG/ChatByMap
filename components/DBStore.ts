@@ -11,10 +11,11 @@ export enum MediaType { OTHER, IMAGE, PDF, VIDEO, SOUND }
 
 export interface IMedia {
     id?: number;
-    type?: string;
-    ownerId: number;
+    type?: number;
+    ownerId?: number;
     uri: string;
-    meta: Map<string, unknown> 
+    videoOptions? : {};
+    meta?: Map<string, unknown> 
 }
 
 export interface IUser {
@@ -25,7 +26,7 @@ export interface IUser {
 
 export interface IMessage {
     id: number;
-    chatId: number;
+    chatId?: number;
     text: string;
     user: IUser;
     me: boolean;
@@ -36,7 +37,7 @@ export interface IMessage {
 }
 
 
-export abstract interface IChat {
+export  interface IChat {
     id: number;
     ownerId: number;
     createdAt: Date;
@@ -45,7 +46,6 @@ export abstract interface IChat {
     users?: IUser [];
     messages: IMessage[];
 }
-
 
 export interface IChatRoom extends IChat {
     
@@ -99,7 +99,7 @@ export interface IDBTable {
     Chattbl.id = db.tables.length   
      Chattbl.data = []
 */
-    
+    /*
 export interface IDBStore {
     id: number;
     storedFile: string;
@@ -113,8 +113,8 @@ export class DBTable  implements IDBTable {
     createdAt: Date;
     data: IDBTableRow[]; 
 }
-
-export class DBStore implements IDBStore {
+*/
+export class DBStore  {
 
     id: number;
     chatSpace: number;
@@ -130,13 +130,29 @@ export class DBStore implements IDBStore {
         this.createdAt = data?.createdAt || new Date();
         this.tables = data?.tables || [];
     }
-
 } 
 
 
-const DbStore = new DBStore();
+export class Chat  {
 
-const chatMsgList =[
+  chatSpace: string;
+  createdAt: Date;
+  messages: IMessage[];
+
+  constructor(data:Chat = null) {
+     
+    this.createdAt = data?.createdAt || new Date();
+    this.chatSpace = data?.chatSpace || 'new chat ' + this.createdAt.toISOString()  ;
+    this.messages = data?.messages || [];
+  }
+
+} 
+
+///const DbStore = new DBStore();
+
+const chatSpace = new Chat();
+
+const chatMsgList: IMessage[] = [
     {
       id: 4,
       text: 'http://google.com Hello!!!',
@@ -204,5 +220,10 @@ const chatMsgList =[
         },
       },
     }
+  ];
+  
+chatSpace.messages = chatMsgList;
 
-export default DbStore;
+export default chatSpace ;
+
+//export default DbStore;

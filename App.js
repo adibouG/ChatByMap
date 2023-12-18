@@ -1,10 +1,9 @@
-import React, { Component, useState, useEffect } from 'react';
+import React, { Component, useState, useEffect, useRef } from 'react';
 import { StatusBar } from 'expo-status-bar';
 
-
-import { TextInput } from 'react-native';
 import { 
-  Alert, Platform, SafeAreaView, StyleSheet, Text, View, 
+  Alert, Platform, Text,TextInput, 
+  View, SafeAreaView, StyleSheet,
   Button, Pressable, TouchableHighlight, TouchableOpacity, 
   TouchableNativeFeedback, TouchableWithoutFeedback
 } from 'react-native';
@@ -17,11 +16,12 @@ import * as Location from 'expo-location';
 import * as ImagePicker from 'expo-image-picker';
 
 import StyledButton from './components/Button';
-import Marker from './components/Marker';
-import Waiter from './components/Waiter';
 
-import db from './components/DBStore';
 
+//import db from './components/DBStore';
+import chatSpace from './components/DBStore';
+
+import Map from './components/Map';
 
 import { Chatty } from 'react-native-chatty';
 
@@ -61,6 +61,14 @@ function StartScreen({ navigation, route }) {
   );
 }
 
+const MessageView = () => {
+  return (
+    <View style={msgViewStyles.msgViewStyles}>
+     
+    </View>
+  )
+}
+
 function HomeScreen({ navigation, route }) {
 
   const [location, setLocation] = useState(null);
@@ -82,100 +90,75 @@ function HomeScreen({ navigation, route }) {
       .catch(err => setErrorMsg(err))
   }; 
   
-  const MessageView = () => {
-    return (
-      <View style={msgViewStyles.msgViewStyles}>
-       
-      </View>
-    )
-  }
-
-  const ChatMsgView = () => {
-    const mess1 = {
-      id: 1,
-      text: 'Hello',
-      me: true,
-      createdAt: new Date(),
-      user: {
-        id: 1,
-        username: 'John Doe',
-        avatar: { uri: 'https://i.pravatar.cc/300' },
-      },
-    };
-  
-    const [messages, setMessages] = useState([mess1]);
-    const text = useRef()
-
-    const onPressSend = (data) => {
-      // Implement
-  
-      socket.send(data)
-    }
-    return (
-      <View>
-        <Chatty
-          messages={messages}
-          headerProps={
-            {
-              id: 0,
-              username: "Muhammed Kaplan",
-              avatar: { uri: "https://i.pravatar.cc/320" },
-            }
-          }
-          footerProps={
-            { // To prevent any unnecessary re-rendering, we're using ref instead of states.
-              onChangeText: (_text) => text.current = _text,
-              onPressSend
-            }
-          }
-        />
-      </View>
-    )
-  }
-  
-  
-  const MapView = () => {
-    return (
-      <View>
-      { 
-        errorMsg 
-          && Alert.alert(errorMsg)
-      }
-      <Text style={msgViewStyles.paragraph}>{`Location: ${location ? JSON.stringify(location) : errorMsg}`}</Text> 
-      <View>
-        {
-          location ? <Marker /> : <Waiter />
-        }
-      </View>
-    </View>
-    )
-  }
-
-
+ 
   return (
-    <SafeAreaView style={msgViewStyles.container}>
-      <MapView />
-      <ChatMsgView />
-    </SafeAreaView>
-  );
-}
+  <SafeAreaView style={msgViewStyles.container}>
+    <Map error={errorMsg} location={location} />
+    <ChatMsgView />
+  </SafeAreaView>
+ );
+  }
 
 const msgViewStyles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'white',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  paragraph: {
-    flex: 1,
-    color: 'grey',
-    alignItems: 'center',
-    justifyContent: 'center'
-  } 
+container: {
+  flex: 1,
+  backgroundColor: 'white',
+  alignItems: 'center',
+  justifyContent: 'center'
+},
+paragraph: {
+  flex: 1,
+  color: 'grey',
+  alignItems: 'center',
+  justifyContent: 'center'
+} 
 });
 
 
+
+const ChatMsgView = () => {
+  const mess1 = {
+    id: 1,
+    text: 'Hello',
+    me: true,
+    createdAt: new Date(),
+    user: {
+      id: 1,
+      username: 'John Doe',
+      avatar: { uri: 'https://i.pravatar.cc/300' },
+    },
+  };
+
+  const [messages, setMessages] = useState([mess1]);
+  const text = useRef()
+
+  const onPressSend = (data) => {
+    // Implement
+    console.log (data)
+//     socket.send((da)ta)
+  }
+  return (
+    <View>
+     {/*<Chatty
+        messages={messages}
+        headerProps={
+          {
+            id: 0,
+            username: "Muhammed Kaplan",
+            avatar: { uri: "https://i.pravatar.cc/320" },
+          }
+        }
+        footerProps={
+          { 
+            // To prevent re-rendering, using ref instead of states.
+            onChangeText: (_text) => text.current = _text,
+            onPressSend
+          }
+        }
+      />*/}
+    </View>
+  )
+}
 function SettingsScreen({ navigation, route }) {
   return (
     <SafeAreaView style={styles.container}>
