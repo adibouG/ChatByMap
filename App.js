@@ -11,8 +11,7 @@ import {
 import { NavigationContainer} from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import * as TaskManager from 'expo-task-manager';
-import * as Location from 'expo-location';
+//import * as TaskManager from 'expo-task-manager';
 import * as ImagePicker from 'expo-image-picker';
 
 import StyledButton from './components/Button';
@@ -22,31 +21,9 @@ import StyledButton from './components/Button';
 import chatSpace from './components/DBStore';
 
 import Map from './components/Map';
-
 import { Chatty } from 'react-native-chatty';
 
-const SetLocationTask = (name) => {
-  const taskExecutorObj =  { data: { locations }, error }; 
-  TaskManager.defineTask(name, (arg = taskExecutorObj) => {
-    if (arg.error) {
-      // check `error.message` for more details.
-      console.log('Error', arg.error.message);
-    }
-    console.log('locations received', arg.data.locations);
-    return arg;
-  })
-}
 
-const GetLocation = async () => {
-      
-  let { status } = await Location.requestForegroundPermissionsAsync();
-  if (status !== 'granted') {
-    throw status;
-  }
-
-  let location = await Location.getCurrentPositionAsync({});
-  return location;
-}
 
 function StartScreen({ navigation, route }) {
   
@@ -71,30 +48,11 @@ const MessageView = () => {
 
 function HomeScreen({ navigation, route }) {
 
-  const [location, setLocation] = useState(null);
-  const [errorMsg, setErrorMsg] = useState(null);
-
-  useEffect(() => {
-    if (!location && !errorMsg) SetLocation();
-  }, []);
-
-  const SetLocation = () => {
-    return GetLocation()
-      .then(loc  => {
-        if ((loc && !location) 
-          || (loc && location && JSON.stringify(loc) !== JSON.stringify(location)))  
-        {
-            setLocation (loc) 
-        }
-      })
-      .catch(err => setErrorMsg(err))
-  }; 
-  
  
   return (
   <SafeAreaView style={msgViewStyles.container}>
-    <Map error={errorMsg} location={location} />
-    <ChatMsgView />
+    <Map />
+    {/* <ChatMsgView /> */}
   </SafeAreaView>
  );
   }
@@ -159,6 +117,8 @@ const ChatMsgView = () => {
     </View>
   )
 }
+
+
 function SettingsScreen({ navigation, route }) {
   return (
     <SafeAreaView style={styles.container}>
